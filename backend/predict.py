@@ -22,6 +22,7 @@ def predict_disease(input_symptoms):
             input_vector[idx] = 1
         else:
             print("Warning unknown symptom: ", symptom)
-    
     #prediction
-
+    prediction = model.predict([input_vector])[0]
+    confidence = model.predict_proba([input_vector]).max()
+    return prediction, confidence
