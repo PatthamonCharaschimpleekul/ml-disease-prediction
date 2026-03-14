@@ -26,3 +26,10 @@ def predict_disease(input_symptoms):
     prediction = model.predict([input_vector])[0]
     confidence = model.predict_proba([input_vector]).max()
     return prediction, confidence
+
+#test & run
+if __name__ == "__main__":
+    symptoms = ["itching", "skin_rash"]
+    desease, conf = predict_disease(symptoms)
+    print("Prediction: ", desease)
+    print("Confidence: ", conf)
