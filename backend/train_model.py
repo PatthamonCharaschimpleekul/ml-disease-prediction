@@ -39,3 +39,23 @@ print(data["prognosis"].unique())'''
 X = data.drop("prognosis", axis=1)
 y = data["prognosis"]
 symptom_list = list(X.columns)
+
+#train nodel
+X_train, X_test, y_train, y_test = train_test_split(
+    X,
+    y,
+    test_size=0.2,
+    random_state=69
+)
+
+model = RandomForestClassifier(
+    n_estimators=200,
+    random_state=69
+)
+
+model.fit(X_train, y_train)
+
+#evaluate model
+y_pred = model.predict(X_test)
+accuracy = accuracy_score(y_test, y_pred)
+print("\nAccuracy = ", accuracy)
