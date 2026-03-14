@@ -36,18 +36,21 @@ for col in symptom_columns:
 print("\n----- UNIQUE PROGNOSIS NAMES ------")
 print(data["prognosis"].unique())'''
 
+#features&tagets
 X = data.drop("prognosis", axis=1)
 y = data["prognosis"]
+
 symptom_list = list(X.columns)
 
-#train nodel
+#create mapping ddictionary
+symptom_index = {symptom: idx for idx, symptom in enumerate(symptom_list)}
+
+#split model
 X_train, X_test, y_train, y_test = train_test_split(
-    X,
-    y,
-    test_size=0.2,
-    random_state=69
+    X, y, test_size=0.2, random_state=69
 )
 
+#train nodel
 model = RandomForestClassifier(
     n_estimators=200,
     random_state=69
@@ -63,4 +66,5 @@ print("\nAccuracy = ", accuracy)
 #save model
 pickle.dump(model, open("model.pkl", "wb"))
 pickle.dump(symptom_list, open("symptom_list.pkl", "wb"))
-print("\nModel saved successfully")
+pickle.dump(symptom_index, open("symptom_index.pkl", "wb"))
+print("\nModel and mapping saved successfully")
