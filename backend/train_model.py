@@ -59,3 +59,8 @@ model.fit(X_train, y_train)
 y_pred = model.predict(X_test)
 accuracy = accuracy_score(y_test, y_pred)
 print("\nAccuracy = ", accuracy)
+
+#save model
+pickle.dump(model, open("model.pkl", "wb"))
+pickle.dump(symptom_list, open("symptom_list.pkl", "wb"))
+print("\nModel saved successfully")
