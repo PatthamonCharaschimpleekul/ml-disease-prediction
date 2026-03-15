@@ -52,7 +52,9 @@ X_train, X_test, y_train, y_test = train_test_split(
 
 #train nodel
 model = RandomForestClassifier(
-    n_estimators=500,
+    n_estimators=1000,
+    max_depth=20,
+    min_samples_split=5,
     random_state=69
 )
 
