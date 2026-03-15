@@ -3,16 +3,18 @@ from predict import predict_disease
 
 app = Flask(__name__)
 
-@app.route("/")
+@app.route("/", methods = ["GET", "POST"])
 def home():
-    return render_template("frontend/index.html")
+    predictions = None
+    symptoms_input = ""
 
-@app.route("/predict", methods=["POST"])
-
-def predict():
-    symptoms = request.json["symtoms"]
-    predictions = predict_disease(symptoms)
-    return (jsonify(predictions))
+    if request.method == "POST":
+        symptoms_input = request.form["symptoms"]
+        symptoms = [s.strip() for s in symptoms_input.split(",")]
+        predictions = predict_disease(symptoms)
+    return render_template(
+        "index.html", predictions=predictions, symptoms_input=symptoms_input
+    )
 
 if __name__ == "__main__":
     app.run(debug=True)
