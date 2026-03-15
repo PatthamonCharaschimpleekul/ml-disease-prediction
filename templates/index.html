@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Disease Prediction System</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+<div class="container">
+<h1>Disease Prediction System</h1>
+<p class="subtitle">
+Enter symptoms separated by commas (example: itching, skin_rash)
+</p>
+<form method="POST">
+<input
+type="text"
+name="symptoms"
+placeholder="Enter symptoms..."
+value="{{ symptoms_input }}"
+required
+>
+<button type="submit">Predict Disease</button>
+</form>
+
+{% if predictions %}
+<div class="results">
+<h2>Prediction Results</h2>
+{% for p in predictions %}
+<div class="card">
+<h3>{{ p.disease }}</h3>
+<p class="confidence">
+Confidence: {{ (p.confidence*100) | round(2) }}%
+</p>
+
+<p>{{ p.description }}</p>
+<h4>Recommended Precautions</h4>
+
+<ul>
+{% for pr in p.precautions %}
+<li>{{ pr }}</li>
+{% endfor %}
+</ul>
+</div>
+
+{% endfor %}
+</div>
+{% endif %}
+</div>
+</body>
+</html>
