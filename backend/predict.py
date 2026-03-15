@@ -17,19 +17,30 @@ def predict_disease(input_symptoms):
 
     #map symptoms to vector
     for symptom in input_symptoms:
+        #clean input
+        symptom = symptom.strip().lower().replace(" ", "_")
         if symptom in symptom_index:
             idx = symptom_index[symptom]
             input_vector[idx] = 1
         else:
             print("Warning unknown symptom: ", symptom)
     #prediction
-    prediction = model.predict([input_vector])[0]
-    confidence = model.predict_proba([input_vector]).max()
-    return prediction, confidence
+    probs = model.predict_proba([input_vector])[0]
+    classes = model.classes_
+    results = list(zip(classes, probs))
+    results.sort(key=lambda x: x[1], reverse=True)
+    top3 = results[:3]
+    return top3
 
 #test & run
 if __name__ == "__main__":
-    symptoms = ["itching", "skin_rash"]
-    desease, conf = predict_disease(symptoms)
-    print("Prediction: ", desease)
-    print("Confidence: ", conf)
+    symptoms = [
+        "itching",
+        "skin_rash"
+    ]
+    predictions = predict_disease(symptoms)
+    if not predictions:
+        print("No prediction returned")
+    print("\nTop Predictions:")
+    for disease, prob in predictions:
+        print(f"{disease} : {prob:.3f}")

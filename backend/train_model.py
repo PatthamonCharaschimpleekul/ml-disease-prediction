@@ -47,7 +47,7 @@ symptom_index = {symptom: idx for idx, symptom in enumerate(symptom_list)}
 
 #split model
 X_train, X_test, y_train, y_test = train_test_split(
-    X, y, test_size=0.2, random_state=69
+    X, y, test_size=0.2, random_state=69, stratify=y
 )
 
 #train nodel
