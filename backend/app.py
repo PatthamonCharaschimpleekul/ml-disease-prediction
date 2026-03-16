@@ -7,7 +7,6 @@ app = Flask(__name__)
 symptom_list = pickle.load(open("symptom_list.pkl", "rb"))
 
 display_symptoms = [s.replace("_"," ") for s in symptom_list]
-checkbox_symptoms = request.form.getlist("symptom_checkbox")
 
 @app.route("/", methods=["GET", "POST"])
 def home():
@@ -20,6 +19,7 @@ def home():
         symptoms_input = request.form["symptoms"]
         symptoms = [s.strip() for s in symptoms_input.split(",")]
 
+        checkbox_symptoms = request.form.getlist("symptom_checkbox")
         symptoms.extend(checkbox_symptoms)
 
         predictions = predict_disease(symptoms)

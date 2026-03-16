@@ -2,69 +2,192 @@
 <html>
 
 <head>
+
 <title>Disease Prediction System</title>
+
 <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
 </head>
 
-<div class="guide">
+<body>
 
-<b>How to use</b>
-<ul>
-<li>Enter symptoms separated by commas</li>
-<li>Example: itching, skin_rash, headache</li>
-<li>The system will predict the top 3 possible diseases</li>
-</ul>
+<div class="container">
+
+<h1>Disease Prediction System</h1>
+
+<p class="subtitle">
+Type symptoms separated by commas or select from the list
+</p>
+
+<form method="POST">
+
+<input
+type="text"
+id="symptomInput"
+name="symptoms"
+placeholder="Example: itching, skin rash, headache"
+value="{{ symptoms_input }}"
+autocomplete="off"
+>
+
+<div id="suggestions"></div>
+
+<button type="submit">Predict Disease</button>
+
+<h3>Select Symptoms</h3>
+
+<div class="checkbox-grid">
+
+{% for symptom in symptom_list %}
+
+<label>
+
+<div class="symptom-card"
+     data-value="{{ symptom }}"
+     data-display="{{ symptom.replace('_',' ') }}">
+
+{{ symptom.replace("_"," ") }}
+
+</label>
+
+{% endfor %}
 
 </div>
 
-<body>
-<div class="container">
-<h1>Disease Prediction System</h1>
-<p class="subtitle">
-Enter symptoms separated by commas (example: itching, skin_rash)
-</p>
-<form method="POST">
-<input
-type="text"
-name="symptoms"
-list="symptom-list"
-placeholder="Example: itching, skin_rash"
-value="{{ symptoms_input }}"
-required
->
-
-<datalist id="symptom-list">
-{% for symptom in symptom_list %}
-<option value="{{ symptom }}">
-{% endfor %}
-</datalist>
-
-<button type="submit">Predict Disease</button>
 </form>
 
 {% if predictions %}
+
 <div class="results">
+
 <h2>Prediction Results</h2>
+
 {% for p in predictions %}
+
 <div class="card">
+
 <h3>{{ p.disease }}</h3>
+
 <p class="confidence">
 Confidence: {{ (p.confidence*100) | round(2) }}%
 </p>
 
 <p>{{ p.description }}</p>
-<h4>Recommended Precautions</h4>
 
 <ul>
+
 {% for pr in p.precautions %}
+
 <li>{{ pr }}</li>
+
 {% endfor %}
+
 </ul>
+
 </div>
 
 {% endfor %}
+
 </div>
+
 {% endif %}
+
 </div>
+
+<script>
+
+const symptoms = ('{{ display_symptoms|tojson }}')
+
+const input = document.getElementById("symptomInput")
+const suggestions = document.getElementById("suggestions")
+
+input.addEventListener("input", function(){
+
+let value = input.value.split(",").pop().trim().toLowerCase()
+
+suggestions.innerHTML=""
+
+if(value.length===0) return
+
+let matches = symptoms.filter(s =>
+s.toLowerCase().includes(value)
+).slice(0,5)
+
+matches.forEach(symptom=>{
+
+let div=document.createElement("div")
+div.classList.add("suggestion-item")
+div.innerText=symptom
+
+div.onclick=function(){
+
+let parts=input.value.split(",")
+parts.pop()
+parts.push(" "+symptom)
+
+input.value=parts.join(",").replace(/^,/,"")
+
+suggestions.innerHTML=""
+
+}
+
+suggestions.appendChild(div)
+
+})
+
+})
+
+const input1 = document.getElementById("symptomInput")
+const cards = document.querySelectorAll(".symptom-card")
+
+cards.forEach(card => {
+
+card.addEventListener("click", function(){
+
+const value = card.dataset.value
+const display = card.dataset.display
+
+let current = input.value
+.split(",")
+.map(s => s.trim())
+.filter(s => s.length > 0)
+
+if(!current.includes(display)){
+
+current.push(display)
+
+}
+
+input1.value = current.join(", ")
+
+card.classList.add("selected")
+
+})
+
+})
+
+input.addEventListener("input", function(){
+
+let current = input.value
+.split(",")
+.map(s => s.trim())
+
+cards.forEach(card=>{
+
+let display = card.dataset.display
+
+if(current.includes(display)){
+card.classList.add("selected")
+}else{
+card.classList.remove("selected")
+}
+
+})
+
+})
+
+
+</script>
+
 </body>
 </html>
