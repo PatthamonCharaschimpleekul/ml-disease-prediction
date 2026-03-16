@@ -85,28 +85,29 @@ background:#f0f4ff;
 }
 
 .symptom-container{
-
-display:flex;
-flex-wrap:wrap;
-gap:8px;
-margin-top:15px;
-max-height:250px;
-overflow-y:auto;
-
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    margin-top:15px;
+    max-height:250px;
+    overflow-y:auto;
 }
 
 .symptom-btn{
     padding:8px 12px;
-    border:1px solid #a0b0c0; 
-    background:#f5f7fb;
+    border:1px solid #6c7a93; /* กรอบเข้มขึ้น */
+    background:#dbe6f7;       /* สีปุ่มเข้มขึ้น */
     border-radius:6px;
     cursor:pointer;
     font-size:14px;
-    transition: background 0.2s; 
+    transition: background 0.2s, transform 0.1s; /* เพิ่ม animation */
+    display:inline-block; /* สำคัญ ให้ hover แค่ปุ่ม ไม่ใช่ทั้งแถว */
+    width:auto; /* ปรับให้ปุ่มตามข้อความ */
 }
 
 .symptom-btn:hover{
-    background:#d0e0ff; /* hover only box */
+    background:#aac4f7; /* hover ปรับเฉพาะปุ่ม */
+    transform: translateY(-2px); /* effect เล็กๆ ให้รู้สึกยก */
 }
 
 .symptom-btn.selected{
