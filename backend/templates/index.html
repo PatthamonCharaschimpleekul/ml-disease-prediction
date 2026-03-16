@@ -42,13 +42,14 @@ autocomplete="off"
 
 <label>
 
-<div class="symptom-card"
-     data-value="{{ symptom }}"
-     data-display="{{ symptom.replace('_',' ') }}">
+<button 
+type="button"
+class="symptom-btn"
+data-display="{{ symptom.replace('_',' ') }}">
 
 {{ symptom.replace("_"," ") }}
 
-</label>
+</button>
 
 {% endfor %}
 
@@ -138,49 +139,34 @@ suggestions.appendChild(div)
 })
 
 const input1 = document.getElementById("symptomInput")
-const cards = document.querySelectorAll(".symptom-card")
+const buttons = document.querySelectorAll(".symptom-btn")
 
-cards.forEach(card => {
+buttons.forEach(btn => {
 
-card.addEventListener("click", function(){
+btn.addEventListener("click", function(){
 
-const value = card.dataset.value
-const display = card.dataset.display
+const value = btn.dataset.display
 
 let current = input.value
 .split(",")
 .map(s => s.trim())
 .filter(s => s.length > 0)
 
-if(!current.includes(display)){
+if(!current.includes(value)){
 
-current.push(display)
+current.push(value)
+
+btn.classList.add("selected")
+
+}else{
+
+current = current.filter(s => s !== value)
+
+btn.classList.remove("selected")
 
 }
 
 input1.value = current.join(", ")
-
-card.classList.add("selected")
-
-})
-
-})
-
-input.addEventListener("input", function(){
-
-let current = input.value
-.split(",")
-.map(s => s.trim())
-
-cards.forEach(card=>{
-
-let display = card.dataset.display
-
-if(current.includes(display)){
-card.classList.add("selected")
-}else{
-card.classList.remove("selected")
-}
 
 })
 
