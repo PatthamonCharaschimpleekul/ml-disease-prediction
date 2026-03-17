@@ -1,170 +1,136 @@
 <!DOCTYPE html>
 <html>
-
 <head>
-
-<title>Disease Prediction System</title>
-
-<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-
+    <title>Disease Prediction System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
-
 <body>
-
-<div class="container">
-
-<h1>Disease Prediction System</h1>
-
-<p class="subtitle">
-Type symptoms separated by commas or select from the list
-</p>
-
-<form method="POST">
-
-<input
-type="text"
-id="symptomInput"
-name="symptoms"
-placeholder="Example: itching, skin rash, headache"
-value="{{ symptoms_input }}"
-autocomplete="off"
->
-
-<div id="suggestions"></div>
-
-<button type="submit">Predict Disease</button>
-
-<h3>Select Symptoms</h3>
-
-<div class="symptom-container"> {% for symptom in symptom_list %}
-        <button 
-            type="button"
-            class="symptom-btn"
-            data-display="{{ symptom.replace('_',' ') }}">
-            {{ symptom.replace("_"," ") }}
-        </button>
-    {% endfor %}
-</div>
-
-</form>
-
-{% if predictions %}
-
-<div class="results">
-
-<h2>Prediction Results</h2>
-
-{% for p in predictions %}
-
-<div class="card">
-
-<h3>{{ p.disease }}</h3>
-
-<p class="confidence">
-Confidence: {{ (p.confidence*100) | round(2) }}%
-</p>
-
-<p>{{ p.description }}</p>
-
-<ul>
-
-{% for pr in p.precautions %}
-
-<li>{{ pr }}</li>
-
-{% endfor %}
-
-</ul>
-
-</div>
-
-{% endfor %}
-
-</div>
-
-{% endif %}
-
-</div>
-
-<script>
-
-const symptoms = ('{{ display_symptoms|tojson }}')
-
-const input = document.getElementById("symptomInput")
-const suggestions = document.getElementById("suggestions")
-
-input.addEventListener("input", function(){
-
-let value = input.value.split(",").pop().trim().toLowerCase()
-
-suggestions.innerHTML=""
-
-if(value.length===0) return
-
-let matches = symptoms.filter(s =>
-s.toLowerCase().includes(value)
-).slice(0,5)
-
-matches.forEach(symptom=>{
-
-let div=document.createElement("div")
-div.classList.add("suggestion-item")
-div.innerText=symptom
-
-div.onclick=function(){
-
-let parts=input.value.split(",")
-parts.pop()
-parts.push(" "+symptom)
-
-input.value=parts.join(",").replace(/^,/,"")
-
-suggestions.innerHTML=""
-
-}
-
-suggestions.appendChild(div)
-
-})
-
-})
-
-const input1 = document.getElementById("symptomInput")
-const buttons = document.querySelectorAll(".symptom-btn")
-
-buttons.forEach(btn => {
-
-btn.addEventListener("click", function(){
-
-const value = btn.dataset.display
-
-let current = input.value
-.split(",")
-.map(s => s.trim())
-.filter(s => s.length > 0)
-
-if(!current.includes(value)){
-
-current.push(value)
-
-btn.classList.add("selected")
-
-}else{
-
-current = current.filter(s => s !== value)
-
-btn.classList.remove("selected")
-
-}
-
-input1.value = current.join(", ")
-
-})
-
-})
-
-
-</script>
-
+    <div class="container">
+        <h1>Disease Prediction System</h1>
+        <p class="subtitle">Type symptoms separated by commas or select from the list</p>
+
+        <form method="POST" id="mainForm">
+            <input type="hidden" id="hiddenSymptoms" name="symptoms" value="{{ symptoms_input }}">
+
+            <input 
+                type="text" 
+                id="symptomInput" 
+                placeholder="Example: itching, skin rash, headache" 
+                value="{{ symptoms_input }}" 
+                autocomplete="off"
+            >
+            <div id="suggestions"></div>
+
+            <h3>Select Symptoms</h3>
+            <div class="symptom-container"> 
+                {% for symptom in symptom_list %}
+                    <button 
+                        type="button"
+                        class="symptom-btn"
+                        data-display="{{ symptom.replace('_',' ') }}">
+                        {{ symptom.replace("_"," ") }}
+                    </button>
+                {% endfor %}
+            </div>
+
+            <button type="submit" id="submitBtn">Predict Disease</button>
+        </form>
+
+        {% if predictions %}
+        <div class="results">
+            <h2>Prediction Results</h2>
+            {% for p in predictions %}
+            <div class="card">
+                <h3>{{ p.disease }}</h3>
+                <p class="confidence">Confidence: {{ (p.confidence*100) | round(2) }}%</p>
+                <p>{{ p.description }}</p>
+                <ul>
+                    {% for pr in p.precautions %}
+                        <li>{{ pr }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+    </div>
+
+    <script>
+        // แก้ไขการแปลงข้อมูลจาก Flask ให้เป็น JavaScript Array
+        // ใช้ JSON.parse เพื่อให้แน่ใจว่าเป็น Array ที่ใช้ .filter() ได้
+        const symptoms = JSON.parse('{{ display_symptoms|tojson|safe }}');
+
+        const input = document.getElementById("symptomInput");
+        const hiddenInput = document.getElementById("hiddenSymptoms");
+        const suggestions = document.getElementById("suggestions");
+        const form = document.getElementById("mainForm");
+
+        // ระบบ Auto-suggest ตอนพิมพ์ในช่อง Textbox
+        input.addEventListener("input", function() {
+            let value = this.value.split(",").pop().trim().toLowerCase();
+            suggestions.innerHTML = "";
+            
+            if(value.length === 0) return;
+
+            // หาอาการที่ตรงกับตัวอักษรที่พิมพ์
+            let matches = symptoms.filter(s => s.toLowerCase().includes(value)).slice(0, 5);
+
+            matches.forEach(symptom => {
+                let div = document.createElement("div");
+                div.classList.add("suggestion-item");
+                div.innerText = symptom;
+
+                div.onclick = function() {
+                    let parts = input.value.split(",");
+                    parts.pop(); // เอาตัวที่พิมพ์ค้างไว้ออก
+                    parts.push(symptom); // ใส่ตัวที่เลือกแทน
+                    input.value = parts.join(", ").replace(/^,\s*/, "") + ", "; // เพิ่มจุลภาคต่อท้าย
+
+                    // เคลียร์ค่าที่โชว์แนะนพ
+                    suggestions.innerHTML = "";
+                    
+                    // เพิ่มคลาส .selected ให้ปุ่มข้างล่างด้วย (ถ้ามี)
+                    const btns = document.querySelectorAll('.symptom-btn');
+                    btns.forEach(b => {
+                        if(b.dataset.display.toLowerCase() === symptom.toLowerCase()){
+                            b.classList.add('selected');
+                        }
+                    });
+                };
+                suggestions.appendChild(div);
+            });
+        });
+
+        // ระบบปุ่มกดเลือกอาการ
+        const buttons = document.querySelectorAll(".symptom-btn");
+
+        buttons.forEach(btn => {
+            btn.addEventListener("click", function() {
+                const value = this.dataset.display;
+                
+                // อ่านค่าที่มีอยู่เดิมในช่อง Textbox
+                let current = input.value.split(",").map(s => s.trim()).filter(s => s.length > 0);
+
+                if(!current.includes(value)){
+                    current.push(value);
+                    this.classList.add("selected");
+                }else{
+                    current = current.filter(s => s !== value);
+                    this.classList.remove("selected");
+                }
+                
+                // เอาค่าใหม่ไปใส่กลับใน Textbox
+                input.value = current.join(", ");
+            });
+        });
+
+        // ก่อนส่งฟอร์ม (Submit) ต้องแน่ใจว่าค่าในช่อง Textbox ไปอยู่ในช่อง Hidden ที่จะส่งให้ Backend
+        form.addEventListener("submit", function(e) {
+            // เอาค่าที่อยู่ใน Textbox (ที่ลบช่องว่างส่วนเกินออกแล้ว) ไปใส่ในช่องที่จะส่ง
+            let finalValue = input.value.split(",").map(s => s.trim()).filter(s => s.length > 0).join(", ");
+            hiddenInput.value = finalValue;
+        });
+    </script>
 </body>
 </html>
