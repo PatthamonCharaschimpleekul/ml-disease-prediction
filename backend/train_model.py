@@ -8,6 +8,7 @@ from sklearn.metrics import accuracy_score
 
 #download Dataset
 data = pd.read_csv('data/Training.csv')
+data = data.loc[:, ~data.columns.str.contains('^Unnamed')]
 
 #data observes
 '''print("\n--------DATASET INFO--------")
